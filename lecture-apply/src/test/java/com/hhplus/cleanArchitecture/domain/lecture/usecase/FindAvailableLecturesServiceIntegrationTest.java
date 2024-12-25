@@ -28,7 +28,9 @@ class FindAvailableLecturesServiceIntegrationTest {
         LocalDate targetDate = LocalDate.of(2024, 12, 25);
 
         // When
-        List<LectureInfo> result = service.getLectures(new LectureSearchQuery(targetDate));
+        List<LectureInfo> result = service.getLectures(LectureSearchQuery.builder()
+                .date(targetDate)
+                .build());
 
         // Then
         assertThat(result).hasSize(1);
@@ -50,7 +52,9 @@ class FindAvailableLecturesServiceIntegrationTest {
         LocalDate pastDate = LocalDate.now().minusDays(1);
 
         // When & Then
-        assertThatThrownBy(() -> service.getLectures(new LectureSearchQuery(pastDate)))
+        assertThatThrownBy(() -> service.getLectures(LectureSearchQuery.builder()
+                .date(pastDate)
+                .build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("강의 조회는 현재 이후의 날짜만 가능합니다.");
     }
@@ -63,7 +67,9 @@ class FindAvailableLecturesServiceIntegrationTest {
         // When & Then
         assertThatThrownBy(() -> {
             LocalDate invalidDate = LocalDate.parse(invalidDateStr);
-            service.getLectures(new LectureSearchQuery(invalidDate));
+            service.getLectures(LectureSearchQuery.builder()
+                    .date(invalidDate)
+                    .build());
         }).isInstanceOf(DateTimeParseException.class);
     }
 }

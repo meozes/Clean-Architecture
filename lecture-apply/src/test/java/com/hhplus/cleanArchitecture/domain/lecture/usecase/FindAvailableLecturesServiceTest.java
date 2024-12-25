@@ -46,7 +46,11 @@ class FindAvailableLecturesServiceTest {
 
 
         // When
-        List<LectureInfo> result = service.getLectures(new LectureSearchQuery(targetDate));
+        List<LectureInfo> result = service.getLectures(
+                LectureSearchQuery.builder()
+                        .date(targetDate)
+                        .build()
+        );
 
 
         // Then
@@ -78,7 +82,11 @@ class FindAvailableLecturesServiceTest {
         LocalDate pastDate = LocalDate.now().minusDays(1);
 
         // When & Then
-        assertThatThrownBy(() -> service.getLectures(new LectureSearchQuery(pastDate)))
+        assertThatThrownBy(() -> service.getLectures(
+                LectureSearchQuery.builder()
+                        .date(pastDate)
+                        .build()
+        ))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("강의 조회는 현재 이후의 날짜만 가능합니다.");
     }
@@ -92,7 +100,10 @@ class FindAvailableLecturesServiceTest {
         // When & Then
         assertThatThrownBy(() -> {
             LocalDate invalidDate = LocalDate.parse(invalidDateStr);
-            service.getLectures(new LectureSearchQuery(invalidDate));
+            service.getLectures(
+                    LectureSearchQuery.builder()
+                            .date(invalidDate)
+                            .build());
         }).isInstanceOf(DateTimeParseException.class);
     }
 

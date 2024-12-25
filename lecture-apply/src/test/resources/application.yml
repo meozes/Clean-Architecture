@@ -4,7 +4,6 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
-
   jpa:
     hibernate:
       ddl-auto: create
@@ -14,7 +13,6 @@ spring:
         format_sql: true
     show-sql: true
     defer-datasource-initialization: true
-
   sql:
     init:
       mode: always
