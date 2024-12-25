@@ -7,11 +7,13 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-public class LectureInfo {
+public class RegisterInfo {
+    private final Long registrationId;
+    private final Long userId;
+    private final LocalDate registeredAt;
     private final Long lectureId;
-    private final String title;
+    private final String lectureTitle;
     private final String instructor;
     private final LocalDate lectureDate;
-    private final int currentCount;
-    private final int capacity;
+
 }
