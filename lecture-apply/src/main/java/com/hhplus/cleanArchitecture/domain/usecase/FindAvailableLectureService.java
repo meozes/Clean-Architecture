@@ -1,9 +1,9 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.usecase;
 
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

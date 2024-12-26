@@ -1,6 +1,5 @@
-package com.hhplus.cleanArchitecture.domain.lecture.model;
+package com.hhplus.cleanArchitecture.domain.model;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter

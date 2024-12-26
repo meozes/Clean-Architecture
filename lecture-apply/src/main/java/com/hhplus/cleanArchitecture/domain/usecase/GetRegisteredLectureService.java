@@ -1,8 +1,8 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.usecase;
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +12,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class GetRegisteredLectureService {
-    private final ILectureRepository lectureRepository;
+    private final IRegistrationRepository registrationRepository;
     public List<RegisterInfo> getLectures(LectureSearchQuery query) {
         validateUserId(query.getUserId());
-        return lectureRepository.getRegisteredLectures(query.getUserId()).stream()
+        return registrationRepository.getRegisteredLectures(query.getUserId()).stream()
                 .map(registration -> new RegisterInfo(
                         registration.getId(),
                         registration.getUserId(),

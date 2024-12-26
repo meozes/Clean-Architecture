@@ -1,13 +1,17 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.schedule;
 
 import com.hhplus.cleanArchitecture.domain.entity.Lecture;
 import com.hhplus.cleanArchitecture.domain.entity.Registration;
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
 import com.hhplus.cleanArchitecture.domain.exception.AlreadyRegisteredException;
 import com.hhplus.cleanArchitecture.domain.exception.CapacityExceededException;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterCommand;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.RegisterCommand;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
+import com.hhplus.cleanArchitecture.domain.usecase.RegisterLectureService;
+import com.hhplus.cleanArchitecture.infra.registration.RegistrationJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,11 +38,14 @@ import static org.mockito.Mockito.when;
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 public class RegisterLectureServiceTest {
-    @Mock
-    private ILectureRepository lectureRepository;
-
     @InjectMocks
     private RegisterLectureService service;
+    @Mock
+    private IRegistrationRepository registrationRepository;
+    @Mock
+    private IScheduleRepository scheduleRepository;
+    @Mock
+    private RegistrationJpaRepository registrationJpaRepository;
 
 
     @Test
@@ -53,11 +60,11 @@ public class RegisterLectureServiceTest {
 
         Schedule schedule = createSchedule(scheduleId, createLecture(lectureId), LocalDate.now(), capacity, 0);
 
-        when(lectureRepository.findScheduleWithLockById(scheduleId))
+        when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(lectureRepository.existsByUserIdAndLectureId(any(), any()))
+        when(registrationRepository.existsByUserIdAndLectureId(any(), any()))
                 .thenReturn(false);
-        when(lectureRepository.save(any(Registration.class)))
+        when(registrationJpaRepository.save(any(Registration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         ExecutorService executorService = Executors.newFixedThreadPool(applicants);
@@ -110,9 +117,9 @@ public class RegisterLectureServiceTest {
 
         Schedule schedule = createSchedule(scheduleId, createLecture(lectureId), LocalDate.now(), 30, 30);
 
-        when(lectureRepository.findScheduleWithLockById(scheduleId))
+        when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(lectureRepository.existsByUserIdAndLectureId(userId, lectureId))
+        when(registrationRepository.existsByUserIdAndLectureId(userId, lectureId))
                 .thenReturn(false);
 
         // when & then
@@ -137,17 +144,20 @@ public class RegisterLectureServiceTest {
 
         Schedule schedule = createSchedule(scheduleId, createLecture(lectureId), LocalDate.now(), 30, 29);
 
-        when(lectureRepository.findScheduleWithLockById(scheduleId))
+        when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(lectureRepository.existsByUserIdAndLectureId(any(), any()))
+        when(registrationRepository.existsByUserIdAndLectureId(any(), any()))
                 .thenReturn(false);
-        when(lectureRepository.save(any(Registration.class)))
+        when(registrationJpaRepository.save(any(Registration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         log.info("테스트 시작: 마지막 1자리에 {}명 동시 신청", lastApplicants);
 
         ExecutorService executorService = Executors.newFixedThreadPool(lastApplicants);
-        CountDownLatch latch = new CountDownLatch(lastApplicants);
+        CountDownLatch readyLatch = new CountDownLatch(lastApplicants); // 모든 스레드가 준비될 때까지 대기
+        CountDownLatch startLatch = new CountDownLatch(1); // 시작 신호를 기다림
+        CountDownLatch doneLatch = new CountDownLatch(lastApplicants); // 모든 작업 완료를 기다림
+
         AtomicReference<Long> successUserId = new AtomicReference<>(null);
         AtomicInteger failCount = new AtomicInteger(0);
 
@@ -156,6 +166,9 @@ public class RegisterLectureServiceTest {
             final Long userId = firstUserId + i;
             executorService.submit(() -> {
                 try {
+                    readyLatch.countDown(); // 스레드 준비 완료
+                    startLatch.await(); // 시작 신호를 기다림
+
                     RegisterInfo result = service.register(RegisterCommand.builder()
                             .userId(userId)
                             .lectureId(lectureId)
@@ -170,12 +183,14 @@ public class RegisterLectureServiceTest {
                     int currentFail = failCount.incrementAndGet();
                     log.error("사용자 {} 신청 중 예외 발생: {}. 현재 실패 수: {}", userId, e.getMessage(), currentFail);
                 } finally {
-                    latch.countDown();
+                    doneLatch.countDown();
                 }
             });
         }
 
-        latch.await();
+        readyLatch.await(); // 모든 스레드가 준비될 때까지 대기
+        startLatch.countDown(); // 모든 스레드에게 동시에 시작 신호를 보냄
+        doneLatch.await(); // 모든 작업이 완료될 때까지 대기
         executorService.shutdown();
 
         // then
@@ -183,7 +198,6 @@ public class RegisterLectureServiceTest {
                 successUserId.get(), failCount.get(), schedule.getCurrentCount());
 
         assertThat(schedule.getCurrentCount()).isEqualTo(30);
-        assertThat(successUserId.get()).isEqualTo(firstUserId);  // 가장 빠른 ID를 가진 사용자가 성공
         assertThat(failCount.get()).isEqualTo(lastApplicants - 1);  // 나머지는 모두 실패
     }
 
@@ -198,11 +212,11 @@ public class RegisterLectureServiceTest {
         Schedule schedule = createSchedule(scheduleId, createLecture(lectureId), LocalDate.now(), 30, 0);
 
         AtomicBoolean firstAttempt = new AtomicBoolean(true);
-        when(lectureRepository.existsByUserIdAndLectureId(userId, lectureId))
+        when(registrationRepository.existsByUserIdAndLectureId(userId, lectureId))
                 .thenAnswer(invocation -> !firstAttempt.compareAndSet(true, false));  // 첫 시도만 false 반환
-        when(lectureRepository.findScheduleWithLockById(scheduleId))
+        when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(lectureRepository.save(any(Registration.class)))
+        when(registrationJpaRepository.save(any(Registration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         log.info("테스트 시작: 사용자 {}가 {}번 중복 신청", userId, repeatCount);

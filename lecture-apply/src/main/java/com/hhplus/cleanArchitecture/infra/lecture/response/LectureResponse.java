@@ -1,6 +1,6 @@
 package com.hhplus.cleanArchitecture.infra.lecture.response;
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
 import lombok.Getter;
 
 import java.time.format.DateTimeFormatter;

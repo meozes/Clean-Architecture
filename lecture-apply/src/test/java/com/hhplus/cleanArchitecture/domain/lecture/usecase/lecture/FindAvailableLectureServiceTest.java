@@ -1,10 +1,13 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.lecture;
 
 import com.hhplus.cleanArchitecture.domain.entity.Lecture;
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
+import com.hhplus.cleanArchitecture.domain.usecase.FindAvailableLectureService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,14 +28,15 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class FindAvailableLectureServiceTest {
-    @Mock
-    private ILectureRepository lectureRepository;
     @InjectMocks
     private FindAvailableLectureService service;
+    @Mock
+    private ILectureRepository lectureRepository;
+
     @Test
     void 특강_조회_성공() {
         // Given
-        LocalDate targetDate = LocalDate.of(2024, 12, 25);
+        LocalDate targetDate = LocalDate.of(2024, 12, 26);
 
         Lecture lecture1 = createLecture(1L, "2주차 멘토링", "하헌우");
         Schedule schedule1 = createSchedule(1L, lecture1, targetDate, 30, 10);

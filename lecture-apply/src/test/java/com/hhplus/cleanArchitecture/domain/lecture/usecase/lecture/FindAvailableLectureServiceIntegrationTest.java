@@ -1,9 +1,10 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.lecture;
 
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
 
+import com.hhplus.cleanArchitecture.domain.usecase.FindAvailableLectureService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +26,7 @@ class FindAvailableLectureServiceIntegrationTest {
     @Test
     void 특강_조회_성공() {
         // Given
-        LocalDate targetDate = LocalDate.of(2024, 12, 25);
+        LocalDate targetDate = LocalDate.of(2024, 12, 26);
 
         // When
         List<LectureInfo> result = service.getLectures(LectureSearchQuery.builder()

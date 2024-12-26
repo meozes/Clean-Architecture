@@ -1,12 +1,12 @@
 package com.hhplus.cleanArchitecture.interfaces.lecture.controller;
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterCommand;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.usecase.FindAvailableLectureService;
-import com.hhplus.cleanArchitecture.domain.lecture.usecase.GetRegisteredLectureService;
-import com.hhplus.cleanArchitecture.domain.lecture.usecase.RegisterLectureService;
+import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.model.RegisterCommand;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.usecase.FindAvailableLectureService;
+import com.hhplus.cleanArchitecture.domain.usecase.GetRegisteredLectureService;
+import com.hhplus.cleanArchitecture.domain.usecase.RegisterLectureService;
 import com.hhplus.cleanArchitecture.interfaces.lecture.dto.request.RegisterRequest;
 import com.hhplus.cleanArchitecture.interfaces.lecture.dto.response.LectureResponse;
 import com.hhplus.cleanArchitecture.interfaces.common.ApiResponse;

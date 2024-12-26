@@ -1,7 +1,8 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.registration;
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.usecase.GetRegisteredLectureService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,14 +41,14 @@ public class GetRegisteredLectureServiceIntegrationTest {
         assertThat(firstLecture.getLectureId()).isEqualTo(1L);
         assertThat(firstLecture.getLectureTitle()).isEqualTo("크리스마스 기념 특강");
         assertThat(firstLecture.getInstructor()).isEqualTo("허재");
-        assertThat(firstLecture.getLectureDate()).isEqualTo(LocalDate.of(2024, 12, 25));
+        assertThat(firstLecture.getLectureDate()).isEqualTo(LocalDate.of(2024, 12, 26));
 
         RegisterInfo secondLecture = result.get(1);
         assertThat(secondLecture.getUserId()).isEqualTo(userId);
         assertThat(secondLecture.getLectureId()).isEqualTo(2L);
         assertThat(secondLecture.getLectureTitle()).isEqualTo("근거가 있는 강의");
         assertThat(secondLecture.getInstructor()).isEqualTo("하헌우");
-        assertThat(secondLecture.getLectureDate()).isEqualTo(LocalDate.of(2024, 12, 26));
+        assertThat(secondLecture.getLectureDate()).isEqualTo(LocalDate.of(2024, 12, 27));
     }
 
     @Test

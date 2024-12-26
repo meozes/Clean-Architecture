@@ -1,17 +1,19 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.schedule;
 
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
 import com.hhplus.cleanArchitecture.domain.exception.AlreadyRegisteredException;
 import com.hhplus.cleanArchitecture.domain.exception.CapacityExceededException;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterCommand;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.RegisterCommand;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
+import com.hhplus.cleanArchitecture.domain.usecase.RegisterLectureService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @SpringBootTest
@@ -28,9 +29,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class RegisterLectureServiceIntegrationTest {
     @Autowired
     private RegisterLectureService registerLectureService;
-
     @Autowired
-    private ILectureRepository lectureRepository;
+    private IScheduleRepository scheduleRepository;
 
     @Test
     void 선착순_30명_신청_성공() throws InterruptedException {
@@ -74,7 +74,7 @@ public class RegisterLectureServiceIntegrationTest {
         executorService.shutdown();
 
         // then
-        Schedule schedule = lectureRepository.findScheduleWithLockById(scheduleId).orElseThrow();
+        Schedule schedule = scheduleRepository.findScheduleWithLockById(scheduleId).orElseThrow();
         log.info("테스트 완료. 총 신청 성공: {}, 실패: {}, 최종 인원: {}",
                 successCount.get(), failCount.get(), schedule.getCurrentCount());
 
@@ -124,7 +124,7 @@ public class RegisterLectureServiceIntegrationTest {
         executorService.shutdown();
 
         // then
-        Schedule schedule = lectureRepository.findScheduleWithLockById(scheduleId).orElseThrow();
+        Schedule schedule = scheduleRepository.findScheduleWithLockById(scheduleId).orElseThrow();
         log.info("테스트 완료. 성공한 사용자: {}, 실패 수: {}, 최종 인원: {}",
                 successUserId.get(), failCount.get(), schedule.getCurrentCount());
 
@@ -176,7 +176,7 @@ public class RegisterLectureServiceIntegrationTest {
         executorService.shutdown();
 
         // then
-        Schedule schedule = lectureRepository.findScheduleWithLockById(scheduleId).orElseThrow();
+        Schedule schedule = scheduleRepository.findScheduleWithLockById(scheduleId).orElseThrow();
         log.info("테스트 완료. 성공 수: {}, 실패 수: {}, 최종 인원: {}",
                 successCount.get(), failCount.get(), schedule.getCurrentCount());
 

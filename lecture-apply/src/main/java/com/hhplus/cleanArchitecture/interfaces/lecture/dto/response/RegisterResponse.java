@@ -1,7 +1,6 @@
 package com.hhplus.cleanArchitecture.interfaces.lecture.dto.response;
 
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
 
 import java.time.format.DateTimeFormatter;
 

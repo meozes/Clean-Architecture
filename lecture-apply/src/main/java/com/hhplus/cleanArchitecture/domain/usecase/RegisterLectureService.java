@@ -1,12 +1,15 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.usecase;
 
 import com.hhplus.cleanArchitecture.domain.entity.Registration;
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
 import com.hhplus.cleanArchitecture.domain.exception.AlreadyRegisteredException;
 import com.hhplus.cleanArchitecture.domain.exception.CapacityExceededException;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterCommand;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.model.RegisterCommand;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
+import com.hhplus.cleanArchitecture.infra.registration.RegistrationJpaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +21,16 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class RegisterLectureService {
     private final ILectureRepository lectureRepository;
+    private final IRegistrationRepository registrationRepository;
+    private final IScheduleRepository scheduleRepository;
+    private final RegistrationJpaRepository registrationJpaRepository;
 
     @Transactional
     public RegisterInfo register(RegisterCommand command) {
         validateUserId(command.getUserId());
         validateDuplicateRegistration(command.getUserId(), command.getLectureId());
 
-        Schedule schedule = lectureRepository.findScheduleWithLockById(command.getScheduleId())
+        Schedule schedule = scheduleRepository.findScheduleWithLockById(command.getScheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 스케줄이 존재하지 않습니다."));
 
         if (schedule.isCapacityFull()) {
@@ -40,7 +46,7 @@ public class RegisterLectureService {
                 .schedule(schedule)
                 .build();
 
-        Registration savedRegistration = lectureRepository.save(registration);
+        Registration savedRegistration = registrationJpaRepository.save(registration);
 
         return new RegisterInfo(
                 savedRegistration.getId(),
@@ -60,7 +66,7 @@ public class RegisterLectureService {
     }
 
     private void validateDuplicateRegistration(Long userId, Long lectureId) {
-        if (lectureRepository.existsByUserIdAndLectureId(userId, lectureId)) {
+        if (registrationRepository.existsByUserIdAndLectureId(userId, lectureId)) {
             throw new AlreadyRegisteredException("이미 신청한 강의입니다.");
         }
     }

@@ -1,17 +1,19 @@
-package com.hhplus.cleanArchitecture.domain.lecture.usecase;
+package com.hhplus.cleanArchitecture.domain.lecture.usecase.registration;
 
 import com.hhplus.cleanArchitecture.domain.entity.Lecture;
 import com.hhplus.cleanArchitecture.domain.entity.Registration;
 import com.hhplus.cleanArchitecture.domain.entity.Schedule;
-import com.hhplus.cleanArchitecture.domain.lecture.model.LectureSearchQuery;
-import com.hhplus.cleanArchitecture.domain.lecture.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.lecture.repository.ILectureRepository;
-import org.junit.jupiter.api.BeforeEach;
+import com.hhplus.cleanArchitecture.domain.model.LectureSearchQuery;
+import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
+import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
+import com.hhplus.cleanArchitecture.domain.usecase.GetRegisteredLectureService;
+import com.hhplus.cleanArchitecture.infra.registration.RegistrationJpaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -26,13 +28,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GetRegisteredLectureServiceTest {
-
-    @Mock
-    private ILectureRepository lectureRepository;
-
     @InjectMocks
     GetRegisteredLectureService getRegisteredLectureService;
-
+    @Mock
+    private IRegistrationRepository registrationRepository;
 
     @Test
     void 신청한_특강_조회_성공() {
@@ -45,7 +44,7 @@ public class GetRegisteredLectureServiceTest {
                 createRegistration(2L, userId, 2L, 2L, now)
         );
 
-        when(lectureRepository.getRegisteredLectures(userId))
+        when(registrationRepository.getRegisteredLectures(userId))
                 .thenReturn(registrations);
 
         // when
@@ -60,7 +59,7 @@ public class GetRegisteredLectureServiceTest {
         assertThat(result.get(0).getUserId()).isEqualTo(userId);
         assertThat(result.get(0).getLectureId()).isEqualTo(1L);
         assertThat(result.get(1).getLectureId()).isEqualTo(2L);
-        verify(lectureRepository).getRegisteredLectures(userId);
+        verify(registrationRepository).getRegisteredLectures(userId);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class GetRegisteredLectureServiceTest {
     void 수강_신청_결과_없음_성공() {
         // given
         Long userId = 1L;
-        when(lectureRepository.getRegisteredLectures(userId))
+        when(registrationRepository.getRegisteredLectures(userId))
                 .thenReturn(Collections.emptyList());
 
         // when
@@ -95,7 +94,7 @@ public class GetRegisteredLectureServiceTest {
 
         // then
         assertThat(result).isEmpty();
-        verify(lectureRepository).getRegisteredLectures(userId);
+        verify(registrationRepository).getRegisteredLectures(userId);
     }
 
     private Registration createRegistration(
