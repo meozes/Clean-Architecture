@@ -14,6 +14,7 @@ import com.hhplus.cleanArchitecture.interfaces.lecture.dto.response.RegisterResp
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,15 +28,16 @@ import java.util.stream.Collectors;
 @RequestMapping("/lectures")
 public class LectureController {
     private static final Logger log = LoggerFactory.getLogger(LectureController.class);
-    private FindAvailableLectureService findAvailableLectureService;
-    private GetRegisteredLectureService getRegisteredLectureService;
-    private RegisterLectureService registerLectureService;
+    private final FindAvailableLectureService findAvailableLectureService;
+    private final GetRegisteredLectureService getRegisteredLectureService;
+    private final RegisterLectureService registerLectureService;
 
     /**
      * 신청 가능 강의 목록 조회
      */
     @GetMapping("/available")
     public ApiResponse<List<LectureResponse>> available(
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
             @RequestParam(name = "date") LocalDate date
     ) {
         List<LectureInfo> lectures = findAvailableLectureService.getLectures(
