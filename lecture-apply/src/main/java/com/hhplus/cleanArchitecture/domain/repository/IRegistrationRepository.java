@@ -8,4 +8,6 @@ public interface IRegistrationRepository {
     List<Registration> getRegisteredLectures(Long userId);
 
     boolean existsByUserIdAndLectureId(Long userId, Long lectureId);
+
+    Registration save(Registration registration);
 }

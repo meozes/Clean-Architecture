@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class LectureQueryRepository {
+public class EntityManagerRepository {
     private final EntityManager em;
     public List<Lecture> findLecturesWithSchedule(LocalDate date) {
         return em.createQuery(

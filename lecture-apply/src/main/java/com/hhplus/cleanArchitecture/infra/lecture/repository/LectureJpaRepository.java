@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LectureJpaRepository extends JpaRepository<Lecture, Long> {
-
-
     @Query("SELECT DISTINCT l FROM Lecture l " +
             "JOIN FETCH l.schedules s " +
             "WHERE s.lectureDate = :date " +
