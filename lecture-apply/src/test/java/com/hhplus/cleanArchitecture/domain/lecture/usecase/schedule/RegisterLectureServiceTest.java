@@ -62,7 +62,7 @@ public class RegisterLectureServiceTest {
 
         when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(registrationRepository.existsByUserIdAndLectureId(any(), any()))
+        when(registrationRepository.existsByUserIdAndScheduleId(any(), any()))
                 .thenReturn(false);
         when(registrationJpaRepository.save(any(Registration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -81,7 +81,6 @@ public class RegisterLectureServiceTest {
                 try {
                     service.register(RegisterCommand.builder()
                             .userId((long) userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     int currentSuccess = successCount.incrementAndGet();
@@ -119,14 +118,13 @@ public class RegisterLectureServiceTest {
 
         when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(registrationRepository.existsByUserIdAndLectureId(userId, lectureId))
+        when(registrationRepository.existsByUserIdAndScheduleId(userId, scheduleId))
                 .thenReturn(false);
 
         // when & then
         assertThatThrownBy(() ->
                 service.register(RegisterCommand.builder()
                         .userId(userId)
-                        .lectureId(lectureId)
                         .scheduleId(scheduleId)
                         .build())
         ).isInstanceOf(CapacityExceededException.class)
@@ -146,7 +144,7 @@ public class RegisterLectureServiceTest {
 
         when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
-        when(registrationRepository.existsByUserIdAndLectureId(any(), any()))
+        when(registrationRepository.existsByUserIdAndScheduleId(any(), any()))
                 .thenReturn(false);
         when(registrationJpaRepository.save(any(Registration.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -171,7 +169,6 @@ public class RegisterLectureServiceTest {
 
                     RegisterInfo result = service.register(RegisterCommand.builder()
                             .userId(userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     successUserId.set(result.getUserId());
@@ -212,7 +209,7 @@ public class RegisterLectureServiceTest {
         Schedule schedule = createSchedule(scheduleId, createLecture(lectureId), LocalDate.now(), 30, 0);
 
         AtomicBoolean firstAttempt = new AtomicBoolean(true);
-        when(registrationRepository.existsByUserIdAndLectureId(userId, lectureId))
+        when(registrationRepository.existsByUserIdAndScheduleId(userId, scheduleId))
                 .thenAnswer(invocation -> !firstAttempt.compareAndSet(true, false));  // 첫 시도만 false 반환
         when(scheduleRepository.findScheduleWithLockById(scheduleId))
                 .thenReturn(Optional.of(schedule));
@@ -233,7 +230,6 @@ public class RegisterLectureServiceTest {
                 try {
                     service.register(RegisterCommand.builder()
                             .userId(userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     int currentSuccess = successCount.incrementAndGet();

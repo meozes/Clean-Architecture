@@ -17,7 +17,7 @@
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="faf066cf-0bfc-4cdf-a8f6-4e2e48260cde">
-      <console name="SpringDB" type="STANDARD" schema="lecture_apply" session="Main"><![CDATA[INSERT INTO lecture (id, title, instructor, created_at, updated_at)
+      <console name="SpringDB" type="STANDARD" schema="apply" session="Main"><![CDATA[INSERT INTO lecture (id, title, instructor, created_at, updated_at)
 VALUES
     (1, '크리스마스 기념 특강', '허재', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (2, '근거가 있는 강의', '하헌우', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -27,18 +27,17 @@ INSERT INTO schedule (id, lecture_id, lecture_date, capacity, current_count, cre
 VALUES
     (1, 1, '2024-12-26', 30, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     (2, 2, '2024-12-30', 30, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-select * from lecture;
-select * from schedule;]]></console>
+--
+select * from apply.lecture;
+select * from apply.schedule;
+select * from apply.registration;]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseEditorStateManager">
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="faf066cf-0bfc-4cdf-a8f6-4e2e48260cde" object-ref="consoles/SpringDB" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="faf066cf-0bfc-4cdf-a8f6-4e2e48260cde" />

@@ -6,29 +6,34 @@ import com.hhplus.cleanArchitecture.domain.exception.AlreadyRegisteredException;
 import com.hhplus.cleanArchitecture.domain.exception.CapacityExceededException;
 import com.hhplus.cleanArchitecture.domain.model.RegisterCommand;
 import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
-import com.hhplus.cleanArchitecture.domain.repository.ILectureRepository;
 import com.hhplus.cleanArchitecture.domain.repository.IRegistrationRepository;
 import com.hhplus.cleanArchitecture.domain.repository.IScheduleRepository;
 import com.hhplus.cleanArchitecture.infra.registration.RegistrationJpaRepository;
-import jakarta.transaction.Transactional;
+import com.hhplus.cleanArchitecture.infra.registration.RegistrationValidationService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDate;
 
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class RegisterLectureService {
-    private final ILectureRepository lectureRepository;
     private final IRegistrationRepository registrationRepository;
     private final IScheduleRepository scheduleRepository;
     private final RegistrationJpaRepository registrationJpaRepository;
+    private final RegistrationValidationService validationService;
 
     @Transactional
     public RegisterInfo register(RegisterCommand command) {
-        validateUserId(command.getUserId());
-        validateDuplicateRegistration(command.getUserId(), command.getLectureId());
+
+        validationService.validateRegistration(command.getUserId(), command.getScheduleId());
+
 
         Schedule schedule = scheduleRepository.findScheduleWithLockById(command.getScheduleId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 스케줄이 존재하지 않습니다."));
@@ -57,18 +62,6 @@ public class RegisterLectureService {
                 schedule.getLecture().getInstructor(),
                 schedule.getLectureDate()
         );
-    }
-
-    private void validateUserId(Long userId) {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("유저 ID는 0보다 커야 합니다.");
-        }
-    }
-
-    private void validateDuplicateRegistration(Long userId, Long lectureId) {
-        if (registrationRepository.existsByUserIdAndLectureId(userId, lectureId)) {
-            throw new AlreadyRegisteredException("이미 신청한 강의입니다.");
-        }
     }
 
 }

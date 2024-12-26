@@ -5,12 +5,10 @@ import lombok.Getter;
 @Getter
 public class RegisterCommand {
     private final Long userId;
-    private final Long lectureId;
     private final Long scheduleId;
 
     private RegisterCommand(Builder builder) {
         this.userId = builder.userId;
-        this.lectureId = builder.lectureId;
         this.scheduleId = builder.scheduleId;
     }
 
@@ -20,18 +18,12 @@ public class RegisterCommand {
 
     public static class Builder {
         private Long userId;
-        private Long lectureId;
         private Long scheduleId;
 
         Builder() {}
 
         public Builder userId(Long userId) {
             this.userId = userId;
-            return this;
-        }
-
-        public Builder lectureId(Long lectureId) {
-            this.lectureId = lectureId;
             return this;
         }
 

@@ -3,6 +3,7 @@ package com.hhplus.cleanArchitecture.interfaces.lecture.dto.response;
 import com.hhplus.cleanArchitecture.domain.model.LectureInfo;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @Getter
@@ -17,7 +18,7 @@ public class LectureResponse {
         this.lectureId = String.valueOf(info.getLectureId());
         this.title = info.getTitle();
         this.instructor = info.getInstructor();
-        this.lectureDate = info.getLectureDate().format(DateTimeFormatter.ISO_DATE_TIME);
+        this.lectureDate = info.getLectureDate().format(DateTimeFormatter.ISO_DATE);
         this.currentCount = info.getCurrentCount();
         this.totalSeats = info.getCapacity();
     }

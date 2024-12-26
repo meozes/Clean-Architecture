@@ -53,7 +53,6 @@ public class RegisterLectureServiceIntegrationTest {
                 try {
                     registerLectureService.register(RegisterCommand.builder()
                             .userId((long) userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     int currentSuccess = successCount.incrementAndGet();
@@ -103,7 +102,6 @@ public class RegisterLectureServiceIntegrationTest {
                 try {
                     RegisterInfo result = registerLectureService.register(RegisterCommand.builder()
                             .userId(userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     successUserId.set(result.getUserId());
@@ -155,7 +153,6 @@ public class RegisterLectureServiceIntegrationTest {
                 try {
                     registerLectureService.register(RegisterCommand.builder()
                             .userId(userId)
-                            .lectureId(lectureId)
                             .scheduleId(scheduleId)
                             .build());
                     int currentSuccess = successCount.incrementAndGet();

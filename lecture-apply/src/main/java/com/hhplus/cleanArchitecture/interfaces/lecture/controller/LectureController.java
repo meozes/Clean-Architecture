@@ -56,18 +56,17 @@ public class LectureController {
      * 특강 신청하기
      */
     @PostMapping("/{userId}/register")
-    public ApiResponse<List<RegisterResponse>> register(
-            @PathVariable Long userId,
+    public ApiResponse<RegisterResponse> register(
+            @PathVariable("userId") Long userId,
             @RequestBody RegisterRequest request
     ) {
         RegisterInfo registerInfo = registerLectureService.register(
                 RegisterCommand.builder()
                         .userId(userId)
-                        .lectureId(request.getLectureId())
                         .scheduleId(request.getScheduleId())
                         .build()
         );
-        return ApiResponse.ok(Collections.singletonList(RegisterResponse.from(registerInfo)));
+        return ApiResponse.ok(RegisterResponse.from(registerInfo));
     }
 
     /**
@@ -75,7 +74,7 @@ public class LectureController {
      */
     @GetMapping("/{userId}/registered")
     public ApiResponse<List<RegisterResponse>> registered(
-            @PathVariable Long userId
+            @PathVariable("userId") Long userId
     ) {
         List<RegisterInfo> registerInfos = getRegisteredLectureService.getLectures(
                 LectureSearchQuery.builder()

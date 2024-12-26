@@ -1,10 +1,14 @@
 package com.hhplus.cleanArchitecture.interfaces.lecture.dto.response;
 
 import com.hhplus.cleanArchitecture.domain.model.RegisterInfo;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.format.DateTimeFormatter;
 
 
+@Getter
+@AllArgsConstructor
 public class RegisterResponse {
     private final String registrationId;
     private final String userId;
@@ -21,7 +25,7 @@ public class RegisterResponse {
         this.lectureId = String.valueOf(info.getLectureId());
         this.lectureTitle = info.getLectureTitle();
         this.instructor = info.getInstructor();
-        this.lectureDate = info.getLectureDate().format(DateTimeFormatter.ISO_DATE_TIME);
+        this.lectureDate = info.getLectureDate().format(DateTimeFormatter.ISO_DATE);
     }
 
     public static RegisterResponse from(RegisterInfo info) {

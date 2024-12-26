@@ -7,6 +7,5 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RegisterRequest {
-    private Long lectureId;
     private Long scheduleId;
 }

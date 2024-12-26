@@ -7,7 +7,7 @@ import java.util.List;
 public interface IRegistrationRepository {
     List<Registration> getRegisteredLectures(Long userId);
 
-    boolean existsByUserIdAndLectureId(Long userId, Long lectureId);
+    boolean existsByUserIdAndScheduleId(Long userId, Long scheduleId);
 
     Registration save(Registration registration);
 }
