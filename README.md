@@ -41,6 +41,7 @@ com.hhplus.cleanArchitecture
     └── schedule
 ```
 
+
 ## ERD 설계
 
 ### 테이블 구조
@@ -208,14 +209,53 @@ public RegisterInfo register(RegisterCommand command) {
     // 3. 안전한 수정
     schedule.increaseCurrentCount();
 }
+
+
+    public Optional<Schedule> findScheduleWithLockById(Long scheduleId) {
+        Schedule result = queryFactory
+                .selectFrom(schedule)
+                .where(schedule.id.eq(scheduleId))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE) //비관적 락
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+}
 ```
+PESSIMISTIC_READ를 적용하면 어떻게 되냐고?
+```
+// 동시 접근 시나리오 (currentCount가 29인 상황)
+Transaction A: SELECT * FROM schedule ... (공유 락, currentCount = 29 확인)
+Transaction B: SELECT * FROM schedule ... (공유 락, currentCount = 29 확인)
+
+// 두 트랜잭션 모두 29 < 30 조건을 통과하고 등록을 시도
+Transaction A: UPDATE schedule SET current_count = 30 ...
+Transaction B: UPDATE schedule SET current_count = 31 ... // 정원 초과 발생!
+```
+읽기를 허용하기 때문에 여러 트랜잭션이 동시에 29명이라고 읽을 수 있고, 결과적으로 정원인 30명을 초과하는 상황이 발생할 수 있다.
+
+```
+// 동시 접근 시나리오 (currentCount가 29인 상황)
+Transaction A: SELECT * FROM schedule ... FOR UPDATE (배타적 락 획득)
+Transaction B: 락 획득 대기...
+
+Transaction A: currentCount 확인 및 증가 후 커밋
+Transaction B: 락 획득 -> currentCount가 30임을 확인 -> CapacityExceededException 발생
+```
+PESSIMISTIC_WRITE을 사용하면 읽는 시점부터 배타적 락을 획득하여 다른 트랜잭션의 접근을 원천 차단하고, 정원 검사와 증가가 원자적으로 실행될 수 있다.
+
 이렇게 비관적 락을 적용함으로써, Race Condition 방지, 데이터 정합성(30명 정원 초과 방지 보장), Lost Update 방지(동시 수정으로 인한 데이터 손실 방지), 트랜잭션 격리(다른 트랜잭션의 간섭 차단)을 이룰 수 있다.<br>
 이 프로젝트는 정확히 30명 정원을 맞춰야하고, 이에 따라 동시 접근이 많을 수 있으며, 데이터 정합성이 사용자 경험보다 중요하므로 비관적 락을 선택하였다.
 
-
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/7a023472-1a74-4e04-8c36-74630b2fa3b5" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/b857512e-e2b0-4684-8361-20555afff7d1" />
 
 
 
 
 ## 테스트
+1. 단위 테스트 (Mock)
+2. 통합 테스트 (h2 db)
+3. E2E 테스트 (MySql db)
 
