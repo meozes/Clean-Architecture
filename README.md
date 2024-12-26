@@ -40,11 +40,29 @@ com.hhplus.cleanArchitecture
     ├── registration
     └── schedule
 ```
+**도메인 중심의 설계**
+- 도메인(domain) 패키지에 비즈니스 핵심 로직을 모음.
+- 외부 의존성(DB, 프레임워크 등)으로부터 도메인 로직을 보호하여, 비즈니스 로직이 기술적 구현에 영향을 받지 않도록 함.
+
+**Repository 추상화** <br>
+domain.repository에서 인터페이스를 정의하고 infra에서 구현함으로써,
+- 도메인 계층이 특정 데이터 접근 기술에 종속되지 않음.
+- 데이터베이스나 외부 시스템 변경 시 도메인 로직 수정 없이 infra 계층만 수정하면 된다.
+- 실제 DB 대신 mock repository를 사용할 수 있어 테스트가 용이해진다.<br>
+
+**관심사의 명확한 분리**
+- interfaces: 외부와의 통신을 담당 (HTTP 요청/응답, DTOs)
+- domain: 핵심 비즈니스 규칙과 로직
+- infra: 기술적 구현과 외부 시스템 연동<br>
+
+**유스케이스 중심의 설계**
+- domain.usecase 패키지를 통해 비즈니스 요구사항을 명확하게 표현함.
+- 각 유스케이스는 도메인 엔티티들을 조합하여 하나의 완결된 비즈니스 기능을 구현한다.
 
 
 ## ERD 설계
 
-### 테이블 구조
+<img width="600" alt="image" src="https://github.com/user-attachments/assets/f46f2f2a-1464-45dd-9c42-55aa86dd2359" />
 
 ### 테이블 관계
 1. LECTURE - SCHEDULE 관계
@@ -65,13 +83,28 @@ com.hhplus.cleanArchitecture
     - SCHEDULE.CURRENT_COUNT의 기본값은 0
 
 ### 설계 이유
-- 강의와 강의 일정 테이블을 분리하여 
-- 강의 일정 테이블에 실시간 수강 여석 컬럼 제거
-- 강의 신청 내역 테이블에 강의 식별 ID 추가
+* LECTURE와 SCHEDULE 테이블 분리<br>
+    * 하나의 강의(LECTURE)가 여러 일정(SCHEDULE)을 가질 수 있는데, 이 경우 강의 정보(TITLE, INSTRUCTOR 등)가 여러 번 중복 저장됨<br> 
+* SCHEDULE에 실시간 여석 컬럼 제거, 대신 현재 신청자 컬럼 추가<br> 
+    * 동시성 제어 시 업데이트해야 할 컬럼이 늘어나 성능 저하 가능성 존재<br> 
+* REGISTRATION 테이블에 LECTURE_ID 컬럼 추가 (반정규화)<br> 
+    * 강의 정보 조회 시 JOIN 연산이 감소하여 쿼리 성능 향상을 기대하였고, 특히 수강신청 내역 조회 API에서 성능상 이점 기대<br> 
+* REGISTRATION 테이블에 (SCHEDULE_ID, USER_ID) 복합 유니크 제약조건 설정<br> 
+    * 데이터베이스 레벨에서 한 사용자가 동일한 스케줄에 중복 등록하는 것을 원천적으로 차단<br> 
+    * 여러 사용자가 동시에 수강신청을 시도할 때 발생할 수 있는 race condition을 방지<br> 
+    * (SCHEDULE_ID, USER_ID)에 대한 복합 유니크 인덱스를 활용한 빠른 중복 체크 가능<br> 
+    ```
+    시간순으로:
+    1. 사용자A: INSERT INTO REGISTRATION (USER_ID=1, SCHEDULE_ID=1) 시도
+    2. 사용자B: INSERT INTO REGISTRATION (USER_ID=1, SCHEDULE_ID=1) 시도
+    3. 데이터베이스: 유니크 제약조건 위반으로 두 번째 INSERT 실패
+    ```
 
 ## API 명세
 1) 날짜별 특강 조회
 * endpoint : GET /lectures/available?date={date}
+* 특강을 신청하고자 하는 날짜(date)에 존재하는 특강을 보여준다.
+    * totalSeats(정원)와 currentCount(신청인원)로 신청 가능 여부를 알 수 있다.
 * Response
   ```json
   {
@@ -91,6 +124,7 @@ com.hhplus.cleanArchitecture
   ```
 2) 특강 신청
 * endpoint : POST /lectures/{userId}/register
+* 유저 아이디와 신청하고자 하는 특강일정의 아이디를 입력하면 신청이 완료되고, 신청 내용을 보여준다.
 * Request
   ```json
   {
@@ -118,6 +152,7 @@ com.hhplus.cleanArchitecture
 
 3) 신청한 특강 조회
 * endpoint : GET /lectures/{userId}/registered
+* 유저 아이디로 신청한 강의 목록을 보여준다.
 * Response
   ```json
   {
@@ -137,7 +172,7 @@ com.hhplus.cleanArchitecture
             "userId": "7",
             "registeredAt": "2024-12-26",
             "lectureId": "2",
-            "lectureTitle": "근거가 있는 강의",
+            "lectureTitle": "2주차 멘토링",
             "instructor": "하헌우",
             "lectureDate": "2024-12-30"
         }
@@ -248,8 +283,8 @@ PESSIMISTIC_WRITE을 사용하면 읽는 시점부터 배타적 락을 획득하
 이렇게 비관적 락을 적용함으로써, Race Condition 방지, 데이터 정합성(30명 정원 초과 방지 보장), Lost Update 방지(동시 수정으로 인한 데이터 손실 방지), 트랜잭션 격리(다른 트랜잭션의 간섭 차단)을 이룰 수 있다.<br>
 이 프로젝트는 정확히 30명 정원을 맞춰야하고, 이에 따라 동시 접근이 많을 수 있으며, 데이터 정합성이 사용자 경험보다 중요하므로 비관적 락을 선택하였다.
 
-<img width="500" alt="image" src="https://github.com/user-attachments/assets/7a023472-1a74-4e04-8c36-74630b2fa3b5" />
-<img width="500" alt="image" src="https://github.com/user-attachments/assets/b857512e-e2b0-4684-8361-20555afff7d1" />
+<img width="500" height="350" alt="image" src="https://github.com/user-attachments/assets/7a023472-1a74-4e04-8c36-74630b2fa3b5" />
+<img width="500" height="350" alt="image" src="https://github.com/user-attachments/assets/b857512e-e2b0-4684-8361-20555afff7d1" />
 
 
 
