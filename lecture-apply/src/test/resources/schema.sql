@@ -28,6 +28,8 @@ CREATE TABLE registration (
     lecture_id BIGINT,
     schedule_id BIGINT,
     created_at DATETIME,
+    updated_at DATETIME,
+    CONSTRAINT uk_schedule_user UNIQUE (schedule_id, user_id),
     FOREIGN KEY (lecture_id) REFERENCES lecture(id),
     FOREIGN KEY (schedule_id) REFERENCES schedule(id)
 );
