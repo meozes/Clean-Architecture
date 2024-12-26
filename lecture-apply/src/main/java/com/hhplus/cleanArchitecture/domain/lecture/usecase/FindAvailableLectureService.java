@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FindAvailableLecturesService {
+public class FindAvailableLectureService {
     private final ILectureRepository lectureRepository;
     public List<LectureInfo> getLectures(LectureSearchQuery query) {
         validateDate(query.getDate());

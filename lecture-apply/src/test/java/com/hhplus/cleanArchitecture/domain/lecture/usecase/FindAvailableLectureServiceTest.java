@@ -24,11 +24,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class FindAvailableLecturesServiceTest {
+class FindAvailableLectureServiceTest {
     @Mock
     private ILectureRepository lectureRepository;
     @InjectMocks
-    private FindAvailableLecturesService service;
+    private FindAvailableLectureService service;
     @Test
     void 특강_조회_성공() {
         // Given

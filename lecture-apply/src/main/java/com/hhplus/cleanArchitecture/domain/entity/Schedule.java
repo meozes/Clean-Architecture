@@ -1,5 +1,6 @@
 package com.hhplus.cleanArchitecture.domain.entity;
 
+import com.hhplus.cleanArchitecture.domain.exception.CapacityExceededException;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -31,5 +32,16 @@ public class Schedule extends BaseTimeEntity {
     }
     public boolean isAvailableFor(LocalDate date) {
         return lectureDate.equals(date) && currentCount < capacity;
+    }
+
+    public boolean isCapacityFull() {
+        return this.currentCount >= this.capacity;
+    }
+
+    public void increaseCurrentCount() {
+        if (isCapacityFull()) {
+            throw new CapacityExceededException("정원이 초과되었습니다.");
+        }
+        this.currentCount++;
     }
 }

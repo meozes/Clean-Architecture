@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class FindAvailableLecturesServiceIntegrationTest {
+class FindAvailableLectureServiceIntegrationTest {
     @Autowired
-    private FindAvailableLecturesService service;
+    private FindAvailableLectureService service;
 
     @Test
     void 특강_조회_성공() {
