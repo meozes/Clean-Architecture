@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/apply?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: 1
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발 초기 단계에서는 create, 운영에서는 validate
+    show-sql: true # SQL 로그 확인용
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        use_sql_comments: true
